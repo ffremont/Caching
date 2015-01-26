@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package fr.ffremont.helloworld;
+package fr.ffremont.caching;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

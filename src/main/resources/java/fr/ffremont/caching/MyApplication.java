@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package fr.ffremont.helloworld;
+package fr.ffremont.caching;
 
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -13,6 +13,6 @@ import org.glassfish.jersey.server.ResourceConfig;
  */
 public class MyApplication extends ResourceConfig{
     public MyApplication(){
-        packages("fr.ffremont.helloworld");
+        packages("fr.ffremont.caching");
     }
 }
