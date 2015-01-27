@@ -53,9 +53,13 @@
                         <li>Verbes HTTP</li>
                         <li>La vie sans cache</li>
                         <li>Please, pas de cache !</li>
+                        <li>Le cache mais quand ?</li>
                         <li>Cache par expiration</li>
                         <li>Cache par validation</li>
                         <li>Un petit mixte :s</li>
+                        <li>Références</li>
+                        <!-- https://www.fir3net.com/Networking/Protocols/http-caching-http-1-0-vs-http-1-1.html -->
+                        <!-- https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching?hl=fr#cache-control -->
                     </ul>
                 </section>
 
@@ -68,7 +72,7 @@
                 <section>
                     <section>
                         <h2>La vie sans cache</h2>
-                        
+
                         <ul>
                             <li>IE 10 : en cache</li>
                             <li>Chrome & Firefox : sans cache</li>
@@ -80,7 +84,7 @@
                         <h3>IE 10 : en cache</h3>
 
                         <p>
-                            La réponse HTTP  est <strong>mise en cache </strong> malgré l'absence d'entête de cache
+                            La réponse HTTP est automatiquement <strong>mise en cache </strong> malgré l'absence d'entête de cache
                         </p>
                         <img src="img/ie_cache_rien_response_ok.png"/>
                         <img src="img/ie_cache_rien_response.png"/>
@@ -95,19 +99,146 @@
                         </p>
                         <img src="img/chrome_rien_ok.png" />
                     </section>
-                    
+
                     <section>
                         <h2>La vie sans cache</h2>
                         <h3>Conclusion</h3>
 
                         <p>
-                            La réponse HTTP  n'est<strong> pas mise en cache </strong>
+                            <strong>Il faut définir explicitement le cache</strong>
                         </p>
                     </section>
-
                 </section>
 
+                <section>
+                    <section>
+                        <h2>Please, pas de cache !</h2>
 
+                        <ul>
+                            <li>Old school : HTTP 1.0</li>
+                            <li>HTTP 1.1</li>
+                            <li>En pratique</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Please, pas de cache !</h2>
+                        <h3>Old school : HTTP 1.0</h3>
+
+                        <ul>
+                            <li>Entête de la requête
+                                <ul>
+                                    <li>Pragma : no-cache</li>
+                                </ul>
+                            </li>
+                            <li>Entête de la réponse
+                                <ul>
+                                    <li>Pragma : no-cache</li>
+                                    <li>Expires : 0</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <!-- https://www.fir3net.com/Networking/Protocols/http-caching-http-1-0-vs-http-1-1.html -->
+                    </section>
+
+                    <section>
+                        <h2>Please, pas de cache !</h2>
+                        <h3>HTTP 1.1</h3>
+
+                        <ul>
+                            <li>Cache-control
+                                <ul>
+                                    <li><strong>no-cache</strong></li>
+                                    <li><strong>no-store</strong> </li>
+                                    <li><strong>must-revalidate</strong> </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>Please, pas de cache !</h2>
+                        <h3>HTTP 1.1</h3>
+                        <h4>Cache-control : no-cache</h4>
+
+                        <p>
+                            <strong>‘no-cache’</strong> indique que la réponse renvoyée ne peut pas être utilisée pour satisfaire une requête ultérieure à la même URL sans avoir au préalable vérifié auprès du serveur si la réponse a changé. En conséquence, si un jeton de validation adapté (ETag) est présent, l’élément no-cache induit un aller-retour pour valider la réponse mise en cache, mais peut éliminer le téléchargement si la ressource n’a pas changé.
+                        </p>
+                    </section>
+                    <section>
+                        <h2>Please, pas de cache !</h2>
+                        <h3>HTTP 1.1</h3>
+                        <h4>Cache-control : no-store</h4>
+
+                        <p>
+                            <strong>‘no-store’</strong> est beaucoup plus simple, puisqu’il interdit au navigateur et à tout cache intermédiaire de stocker toute version de la réponse renvoyée. C’est la cas par exemple des réponses qui contiennent des données confidentielles, personnelles ou bancaires. Chaque fois que l’utilisateur demande cet élément, une requête est envoyée au serveur et une réponse complète est téléchargée.
+                        </p>
+                    </section>
+                    <section>
+                        <h2>Please, pas de cache !</h2>
+                        <h3>HTTP 1.1</h3>
+                        <h4>Naigateurs</h4>
+
+                       
+                        <ul>
+                            <li>Chrome & Firefox : 200 Ok</li>
+                            <li>IE 10 : 200 Ok
+                                <img src="img/ie_cache_and_nocache.png" />
+                            </li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>Please, pas de cache !</h2>
+                        <h3>En pratique</h3>
+
+                        <pre><code>
+@GET
+@Path("nocache")
+public Response nocache(){
+    javax.ws.rs.core.CacheControl cache = new javax.ws.rs.core.CacheControl();
+    cache.setMustRevalidate(true);
+    cache.setNoCache(true);
+    cache.setNoStore(true);
+    cache.setPrivate(false);
+
+
+    return Response.ok("Pas de cache").cacheControl(cache).build();
+}
+    </code></pre>
+                    </section>
+                </section>
+                
+                <section>
+                    <section>
+                        <h2>Le cache mais quand ?</h2>
+                        
+                        <img src="img/http-cache-decision-tree.png" />
+                    </section>
+                </section>
+                
+                <section>
+                    <section>
+                        <h2>Cache par expiration</h2>
+                        
+                        <ul>
+                            <li>Cache-control & max-age</li>
+                            <li>En pratique</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>Cache par expiration</h2>
+                        <h3>max-age ?</h3>
+                        <p>
+                            Cette directive indique la durée maximale en secondes pendant laquelle la réponse récupérée peut être réutilisée, à partir de l’envoi de la requête. Par exemple, max-age=60 indique que la réponse peut être mise en cache et réutilisée pendant les 60 secondes qui suivent.
+                        </p>
+                    </section>
+                    <section>
+                        <h2>Cache par expiration</h2>
+                        <h3>En pratique</h3>
+                       
+                        
+                    </section>
+                </section>
             </div>
 
         </div>

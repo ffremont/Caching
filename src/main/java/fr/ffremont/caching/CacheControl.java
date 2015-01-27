@@ -32,4 +32,17 @@ public class CacheControl {
         
         return Response.ok("ok").cacheControl(cache).build();
     }
+    
+    @GET
+    @Path("nocache")
+    public Response nocache(){
+        javax.ws.rs.core.CacheControl cache = new javax.ws.rs.core.CacheControl();
+        cache.setMustRevalidate(true);
+        cache.setNoCache(true);
+        cache.setNoStore(true);
+        cache.setPrivate(false);
+        
+        
+        return Response.ok("Pas de cache").cacheControl(cache).build();
+    }
 }
