@@ -60,6 +60,9 @@
                         <li>Références</li>
                         <!-- https://www.fir3net.com/Networking/Protocols/http-caching-http-1-0-vs-http-1-1.html -->
                         <!-- https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching?hl=fr#cache-control -->
+                        <!-- https://www.mnot.net/cache_docs/index.fr.html#CACHE-CONTROL -->
+                        <!-- https://devcenter.heroku.com/articles/increasing-application-performance-with-http-cache-headers -->
+                        <!-- https://developer.mozilla.org/fr/docs/Web/HTTP/Caching_FAQ -->
                     </ul>
                 </section>
 
@@ -114,6 +117,7 @@
                     <section>
                         <h2>Please, pas de cache !</h2>
 
+                        <p>Je ne veux pas de cache pour ma réponse HTTP</p>
                         <ul>
                             <li>Old school : HTTP 1.0</li>
                             <li>HTTP 1.1</li>
@@ -138,24 +142,14 @@
                                 </ul>
                             </li>
                         </ul>
+                        <p>
+                            Il est intéressant de noter que « Expire: 0 »et« Pragma: no-cache "sont têtes de réponse techniquement <strong>invalides</strong>
+                        </p>
+
 
                         <!-- https://www.fir3net.com/Networking/Protocols/http-caching-http-1-0-vs-http-1-1.html -->
                     </section>
 
-                    <section>
-                        <h2>Please, pas de cache !</h2>
-                        <h3>HTTP 1.1</h3>
-
-                        <ul>
-                            <li>Cache-control
-                                <ul>
-                                    <li><strong>no-cache</strong></li>
-                                    <li><strong>no-store</strong> </li>
-                                    <li><strong>must-revalidate</strong> </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </section>
                     <section>
                         <h2>Please, pas de cache !</h2>
                         <h3>HTTP 1.1</h3>
@@ -177,9 +171,21 @@
                     <section>
                         <h2>Please, pas de cache !</h2>
                         <h3>HTTP 1.1</h3>
-                        <h4>Naigateurs</h4>
 
-                       
+                        <ul>
+                            <li>Cache-control
+                                <ul>
+                                    <li><strong>no-store</strong></li>
+                                    <li><strong>no-cache : <a href="http://support2.microsoft.com/default.aspx?scid=KB;EN-US;Q234067">merci IE </a></strong></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>Please, pas de cache !</h2>
+                        <h3>HTTP 1.1</h3>
+                        <h4>Navigateurs</h4>
+
                         <ul>
                             <li>Chrome & Firefox : 200 Ok</li>
                             <li>IE 10 : 200 Ok
@@ -193,33 +199,51 @@
 
                         <pre><code>
 @GET
-@Path("nocache")
-public Response nocache(){
+@Path("disablecache")
+public Response disablecache(){
     javax.ws.rs.core.CacheControl cache = new javax.ws.rs.core.CacheControl();
-    cache.setMustRevalidate(true);
-    cache.setNoCache(true);
-    cache.setNoStore(true);
-    cache.setPrivate(false);
-
+    cache.setNoCache(true); // pour IE 
+    cache.setNoStore(true); // HTTP 1.1 demande juste no-store
 
     return Response.ok("Pas de cache").cacheControl(cache).build();
 }
     </code></pre>
                     </section>
                 </section>
-                
+
                 <section>
                     <section>
                         <h2>Le cache mais quand ?</h2>
-                        
+
+                        <ul>
+                            <li>Un petit schéma</li>
+                            <li>public ou private</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>Le cache mais quand ?</h2>
+
                         <img src="img/http-cache-decision-tree.png" />
                     </section>
+                    <section>
+                        <h2>Le cache mais quand ?</h2>
+                        <h3><strong>public</strong> ou private</h3>
+
+
+                        <p>Si la réponse est marquée comme étant <strong>publique</strong>, elle peut être mise en cache, même si elle est associée à une authentification HTTP, et même si le code d’état de la réponse ne peut normalement pas être mis en cache. La plupart du temps l’élément public n’est pas nécessaire, car les informations de mises en cache explicites, telles que max-age, indiquent que la réponse peut quand même être mise en cache.</p>
+                    </section>
+                    <section>
+                        <h2>Le cache mais quand ?</h2>
+                        <h3>public ou <strong>private</strong></h3>
+
+                        <p>Les réponses portant l’élément <strong>private</strong> peuvent être mises en cache par le navigateur, mais concernent généralement un seul utilisateur, et ne peuvent donc pas être mises en cache par un cache intermédiaire. Par exemple, une page HTML contenant des informations confidentielles sur l’utilisateur peut être mise en cache par le navigateur de cet utilisateur, mais pas par un CDN.</p>
+                    </section>
                 </section>
-                
+
                 <section>
                     <section>
                         <h2>Cache par expiration</h2>
-                        
+
                         <ul>
                             <li>Cache-control & max-age</li>
                             <li>En pratique</li>
@@ -235,9 +259,109 @@ public Response nocache(){
                     <section>
                         <h2>Cache par expiration</h2>
                         <h3>En pratique</h3>
-                       
-                        
+
+                        <pre><code>
+@GET
+@Path("use60sec")
+public Response use1sec() {
+    javax.ws.rs.core.CacheControl cache = new javax.ws.rs.core.CacheControl();
+    cache.setMaxAge(60);
+    cache.setPrivate(false);
+
+    return Response.ok("En cache pendant 60 sec").cacheControl(cache).build();
+}
+</code></pre>
                     </section>
+                    <section>
+                        <h2>Cache par expiration</h2>
+                        <h3>En pratique</h3>
+                        <h4>Ex. chrome</h4>
+
+                        <img src="img/chrome_maxage_60sec.png" />
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Cache par validation</h2>
+
+                        <ul>
+                            <li>Basé sur le temps</li>
+                            <li>Basé sur le contenu</li>
+                        </ul>
+                    </section>
+                    
+                    <section>
+                        <h2>Cache par validation</h2>
+                        <h3>Basé sur le temps</h3>
+                        <h4>Sur le papier</h4>
+                        
+                        <p>L'idée est de mettre en cache une ressource un certain temps tout en vérifiant qu'elle n'a pas été modifiée.</p>
+                        <ul>
+                            <li>Request HTTP
+                                <ul>
+                                    <li>If-Modified-Since</li>
+                                </ul>
+                            </li>
+                            <li>Réponse HTTP
+                                <ul>
+                                    <li>Cache-control : max-age=XXX</li>
+                                    <li>Last-Modified</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <section>
+                        <h2>Cache par validation</h2>
+                        <h3>Basé sur le temps</h3>
+                        
+                        <img src="img/FF_validation_tmps.png" />
+                        <pre><code>
+@Path("cachecontrol")
+public class CacheControl {
+
+    @Context
+    private HttpServletRequest request;
+    
+    @GET
+    @Path("validationtps")
+    public Response validationTps() {
+        javax.ws.rs.core.CacheControl cache = new javax.ws.rs.core.CacheControl();
+        cache.setMaxAge(60);
+        cache.setPrivate(false);
+        
+        if(request.getHeader("If-Modified-Since") != null){
+            // ma ressource est encore bonne
+            return Response.status(Response.Status.NOT_MODIFIED).build();            
+        }        
+
+        return Response.ok("Ma petite donnée").lastModified(Date.from(Instant.now())).cacheControl(cache).build();
+    }
+}
+</code></pre>
+                    </section>
+                    
+                    <section>
+                        <h2>Cache par validation</h2>
+                        <h3>Basé sur le contenu</h3>
+                        
+                        <p>Le serveur compare le jeton, et s'il n'a pas changé il retourne une 304 Not modified. Le cache sera renouvelé 120 sec suppl. Un noueau téléchargement n'est pas nécessaire.</p>
+                    
+                        <img src="img/http-cache-control.png" />
+                    </section>
+                </section>
+
+                <section>
+                    <h2>Références</h2>
+
+                    <ul>
+                        <li>https://www.fir3net.com/Networking/Protocols/http-caching-http-1-0-vs-http-1-1.html</li>
+                        <li>https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching?hl=fr#cache-control</li>
+                        <li>https://www.mnot.net/cache_docs/index.fr.html#CACHE-CONTROL</li>
+                        <li>https://devcenter.heroku.com/articles/increasing-application-performance-with-http-cache-headers</li>
+                        <li>https://developer.mozilla.org/fr/docs/Web/HTTP/Caching_FAQ</li>
+                    </ul>
                 </section>
             </div>
 
