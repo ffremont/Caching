@@ -56,7 +56,6 @@
                         <li>Le cache mais quand ?</li>
                         <li>Cache par expiration</li>
                         <li>Cache par validation</li>
-                        <li>Un petit mixte :s</li>
                         <li>Références</li>
                         <!-- https://www.fir3net.com/Networking/Protocols/http-caching-http-1-0-vs-http-1-1.html -->
                         <!-- https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching?hl=fr#cache-control -->
@@ -274,9 +273,10 @@ public Response use1sec() {
                     </section>
                     <section>
                         <h2>Cache par expiration</h2>
-                        <h3>En pratique</h3>
+                        <h3>Comportement homogène ?</h3>
                         <h4>Ex. chrome</h4>
 
+                        <p>Oui globalement, la ressource est mise en cache pendant 60 sec. puis le serveur est resollicité (Chrome, FF, IE).</p>
                         <img src="img/chrome_maxage_60sec.png" />
                     </section>
                 </section>
@@ -316,39 +316,124 @@ public Response use1sec() {
                         <h2>Cache par validation</h2>
                         <h3>Basé sur le temps</h3>
                         
-                        <img src="img/FF_validation_tmps.png" />
-                        <pre><code>
-@Path("cachecontrol")
-public class CacheControl {
+                        <pre><code>// ressource mise en cache 10sec puis une revalidation est nécessaire
+@GET
+@Path("validationtps")
+public Response validationTps(@Context HttpServletRequest httpRequest) {
+    javax.ws.rs.core.CacheControl cache = new javax.ws.rs.core.CacheControl();
+    cache.setMaxAge(10); 
+    cache.setMustRevalidate(true);
+    cache.setPrivate(false);
+    Instant updated = Instant.parse("2011-12-03T10:15:30Z");
 
-    @Context
-    private HttpServletRequest request;
-    
-    @GET
-    @Path("validationtps")
-    public Response validationTps() {
-        javax.ws.rs.core.CacheControl cache = new javax.ws.rs.core.CacheControl();
-        cache.setMaxAge(60);
-        cache.setPrivate(false);
-        
-        if(request.getHeader("If-Modified-Since") != null){
-            // ma ressource est encore bonne
-            return Response.status(Response.Status.NOT_MODIFIED).build();            
-        }        
-
-        return Response.ok("Ma petite donnée").lastModified(Date.from(Instant.now())).cacheControl(cache).build();
+    Response.ResponseBuilder builder = request.evaluatePreconditions(Date.from(updated));
+    if(builder == null){
+        builder = Response.ok("Ma petite donnée").lastModified(Date.from(updated)).cacheControl(cache);
     }
+
+    return builder.build();
 }
 </code></pre>
                     </section>
                     
                     <section>
                         <h2>Cache par validation</h2>
+                        <h3>Basé sur le temps</h3>
+                        <h4>Must-revalidate</h4>
+                        
+                        <p><strong>must-revalidate</strong> is an instruction that tells caches that once something becomes stale, it has to be checked on the origin server. If it isn't present, caches can (generally) use stale responses in unusual circumstances (e.g., if they lose contact with the origin server).</p>
+                    
+                        <img src="img/FF_headers_cache_validation_temps_reponse.png" />
+                    </section>
+                    
+                    <section>
+                        <h2>Cache par validation</h2>
+                        <h3>Comportement homogène ?</h3>
+                        
+                        <p><strong>Non... </strong></p>
+                        <ul>
+                            <li>Chrome & FF :
+                                <ul>
+                                    <li>Mise en cache pendant 10sec puis revalidation</li>
+                                    <li>Serveur tranquille pendant 10sec</li>
+                                </ul>
+                            </li>
+                            <li>IE :
+                                <ul>
+                                    <li>Mise en cache pendant 10sec puis revalidation</li>
+                                    <li>Serveur tranquille pendant les 10 premières sec après revalidation systématique à chaque appel</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <section>
+                        <h2>Cache par validation</h2>
+                        <h3>Basé sur le temps</h3>
+                        <h4>+ / -</h4>
+                        
+                        <ul>
+                            <li>Avantages
+                                <ul>
+                                    <li>pendant X sec le <strong>serveur n'est pas sollicité</strong></li>
+                                </ul>
+                            </li>
+                            <li>
+                                Inconvénients
+                                <ul>
+                                    <li>Si ma ressource est périmée pendant les X sec : je suis fichu</li>
+                                    <li>Gestion du cache par validation (basé sur le temps) hétérogène</li>
+                                </ul>
+                            </li>
+                        </ul>                        
+                    </section>
+                    
+                    <section>
+                        <h2>Cache par validation</h2>
                         <h3>Basé sur le contenu</h3>
                         
-                        <p>Le serveur compare le jeton, et s'il n'a pas changé il retourne une 304 Not modified. Le cache sera renouvelé 120 sec suppl. Un noueau téléchargement n'est pas nécessaire.</p>
-                    
+                        <p>Utilisation de l'entête "<strong>ETag</strong>" est similaire à "Last-Modified" excepté que la valeur est un hash du contenu.</p>
+                        <p>Très utile lorsque la dernière date de modification est difficile à prévoir.</p>
                         <img src="img/http-cache-control.png" />
+                    </section>
+                    
+                    <section>
+                        <h2>Cache par validation</h2>
+                        <h3>Basé sur le contenu</h3>
+                        
+                        <pre><code>@GET
+@Path("vcontenu")
+public Response vcontenu(@Context HttpServletRequest httpRequest) {
+    String hashOfMyContent = "azerty_v1";
+    EntityTag etag = new EntityTag(hashOfMyContent);
+
+    Response.ResponseBuilder builder = request.evaluatePreconditions(etag);
+    if(builder == null){
+        builder = Response.ok("Cache par validation de contenu").tag(etag);
+    }
+
+    return builder.build();
+}
+</code></pre>
+                        <img src="img/FF_headers_response_etag_basic.png" />
+                    </section>
+                    
+                    <section>
+                        <h2>Cache par validation</h2>
+                        <h3>Basé sur le contenu</h3>
+                        <h4>La désillution</h4>
+                        
+                        <p>On met en production... Et quelques temps plus tard, on se rend compte que le cache plante à plein tube sur IE</p>
+                        <img src="img/oh_mon_dieu_tout_est_casse.gif" />
+                    </section>
+                    <section>
+                        <h2>Cache par validation</h2>
+                        <h3>Basé sur le contenu</h3>
+                        <h4>Quel menteur IE !</h4>
+                        
+                        <img src="img/ie_etag_basic_le_mensonge.png">
+                        <pre><code>INFO (CacheControlService.java:125) - Retour du contenu
+INFO (CacheControlService.java:129) - Retour 304</code></pre>
                     </section>
                 </section>
 
