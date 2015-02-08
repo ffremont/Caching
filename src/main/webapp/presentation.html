@@ -290,12 +290,12 @@ public Response use1sec() {
                             <li>Basé sur le contenu</li>
                         </ul>
                     </section>
-                    
+
                     <section>
                         <h2>Cache par validation</h2>
                         <h3>Basé sur le temps</h3>
                         <h4>Sur le papier</h4>
-                        
+
                         <p>L'idée est de mettre en cache une ressource un certain temps tout en vérifiant qu'elle n'a pas été modifiée.</p>
                         <ul>
                             <li>Request HTTP
@@ -311,11 +311,11 @@ public Response use1sec() {
                             </li>
                         </ul>
                     </section>
-                    
+
                     <section>
                         <h2>Cache par validation</h2>
                         <h3>Basé sur le temps</h3>
-                        
+
                         <pre><code>// ressource mise en cache 10sec puis une revalidation est nécessaire
 @GET
 @Path("validationtps")
@@ -335,21 +335,22 @@ public Response validationTps(@Context HttpServletRequest httpRequest) {
 }
 </code></pre>
                     </section>
-                    
+
                     <section>
                         <h2>Cache par validation</h2>
                         <h3>Basé sur le temps</h3>
                         <h4>Must-revalidate</h4>
-                        
-                        <p><strong>must-revalidate</strong> is an instruction that tells caches that once something becomes stale, it has to be checked on the origin server. If it isn't present, caches can (generally) use stale responses in unusual circumstances (e.g., if they lose contact with the origin server).</p>
-                    
+
+                        <p>When the <strong>must-revalidate</strong> directive is present in a response received by a cache, that cache MUST NOT use the entry after it becomes stale to respond to a subsequent request without first revalidating it with the origin server</p>
+
                         <img src="img/FF_headers_cache_validation_temps_reponse.png" />
                     </section>
-                    
+
                     <section>
                         <h2>Cache par validation</h2>
-                        <h3>Comportement homogène ?</h3>
-                        
+                        <h3>Basé sur le temps</h3>
+                        <h4>Comportement homogène ?</h4>
+
                         <p><strong>Non... </strong></p>
                         <ul>
                             <li>Chrome & FF :
@@ -366,12 +367,12 @@ public Response validationTps(@Context HttpServletRequest httpRequest) {
                             </li>
                         </ul>
                     </section>
-                    
+
                     <section>
                         <h2>Cache par validation</h2>
                         <h3>Basé sur le temps</h3>
                         <h4>+ / -</h4>
-                        
+
                         <ul>
                             <li>Avantages
                                 <ul>
@@ -387,20 +388,20 @@ public Response validationTps(@Context HttpServletRequest httpRequest) {
                             </li>
                         </ul>                        
                     </section>
-                    
+
                     <section>
                         <h2>Cache par validation</h2>
                         <h3>Basé sur le contenu</h3>
-                        
+
                         <p>Utilisation de l'entête "<strong>ETag</strong>" est similaire à "Last-Modified" excepté que la valeur est un hash du contenu.</p>
                         <p>Très utile lorsque la dernière date de modification est difficile à prévoir.</p>
                         <img src="img/http-cache-control.png" />
                     </section>
-                    
+
                     <section>
                         <h2>Cache par validation</h2>
                         <h3>Basé sur le contenu</h3>
-                        
+
                         <pre><code>@GET
 @Path("vcontenu")
 public Response vcontenu(@Context HttpServletRequest httpRequest) {
@@ -417,12 +418,12 @@ public Response vcontenu(@Context HttpServletRequest httpRequest) {
 </code></pre>
                         <img src="img/FF_headers_response_etag_basic.png" />
                     </section>
-                    
+
                     <section>
                         <h2>Cache par validation</h2>
                         <h3>Basé sur le contenu</h3>
                         <h4>La désillution</h4>
-                        
+
                         <p>On met en production... Et quelques temps plus tard, on se rend compte que le cache plante à plein tube sur IE</p>
                         <img src="img/oh_mon_dieu_tout_est_casse.gif" />
                     </section>
@@ -430,12 +431,69 @@ public Response vcontenu(@Context HttpServletRequest httpRequest) {
                         <h2>Cache par validation</h2>
                         <h3>Basé sur le contenu</h3>
                         <h4>Quel menteur IE !</h4>
-                        
+
                         <img src="img/ie_etag_basic_le_mensonge.png">
                         <pre><code>INFO (CacheControlService.java:125) - Retour du contenu
 INFO (CacheControlService.java:129) - Retour 304</code></pre>
                     </section>
+
+                    <section>
+                        <h2>Cache par validation</h2>
+                        <h3>Basé sur le contenu</h3>
+                        <h4>Vive <a href="#/4/2">"no-cache"</a></h4>
+
+                        <pre><code>@GET
+@Path("vcontenu_ie")
+public Response vcontenuIe(@Context HttpServletRequest httpRequest) {
+    String hashOfMyContent = "azerty_v1";
+    EntityTag etag = new EntityTag(hashOfMyContent);
+    CacheControl cache = new CacheControl();
+    cache.setNoCache(true);
+
+    Response.ResponseBuilder builder = request.evaluatePreconditions(etag);
+    if(builder == null){
+        builder = Response.ok("Cache par validation de contenu").cacheControl(cache).tag(etag);
+    }
+
+    return builder.build();
+}
+</code></pre>
+                    </section>
+                    <section>
+                        <h2>Cache par validation</h2>
+                        <h3>Basé sur le contenu</h3>
+                        <h4>Vive <a href="#/4/2">"no-cache"</a></h4>
+
+                        <img src="img/FF_headers_cache_validation_fix_no-cache.png" />
+                        <img src="img/IE_etag_no-cache.png" />
+                        <pre><code>INFO (CacheControlService.java:125) - Retour du contenu
+INFO (CacheControlService.java:129) - Retour 304
+INFO (CacheControlService.java:129) - Retour 304
+INFO (CacheControlService.java:129) - Retour 304
+INFO (CacheControlService.java:129) - Retour 304
+INFO (CacheControlService.java:129) - Retour 304</code></pre>
+                    </section>
+                    
+                    <section>
+                        <h2>Cache par validation</h2>
+                        <h3>Basé sur le contenu</h3>
+                        <h4>no-cache Vs must-revalidate</h4>
+
+                        <ul>
+                            <li><strong>must-revalidate</strong>
+                                <small>Il signifie «à l'expiration du cache, je refuse de retourner des réponses périmées à l'utilisateur, même si elle est acceptable".</small>
+                            </li>
+                            <li><strong>no-cache</strong>
+                                <small>no-cache implique must-revlidate plus le fait la réponse devient vicié tout de suite.</small>
+                            </li>
+                        </ul>
+                        <p>
+                            Si une réponse est mis en cache pendant 10 secondes, puis doit-revalider coups de pied après 10 secondes, alors que no-cache implique doit-revalider après 0 secondes.
+                        </p>
+                    </section>
                 </section>
+
+
 
                 <section>
                     <h2>Références</h2>
@@ -446,6 +504,7 @@ INFO (CacheControlService.java:129) - Retour 304</code></pre>
                         <li>https://www.mnot.net/cache_docs/index.fr.html#CACHE-CONTROL</li>
                         <li>https://devcenter.heroku.com/articles/increasing-application-performance-with-http-cache-headers</li>
                         <li>https://developer.mozilla.org/fr/docs/Web/HTTP/Caching_FAQ</li>
+                        <li>http://stackoverflow.com/questions/18148884/difference-between-no-cache-and-must-revalidate</li>
                     </ul>
                 </section>
             </div>
