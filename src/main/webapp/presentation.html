@@ -274,10 +274,27 @@ public Response use1sec() {
                     <section>
                         <h2>Cache par expiration</h2>
                         <h3>Comportement homogène ?</h3>
-                        <h4>Ex. chrome</h4>
 
-                        <p>Oui globalement, la ressource est mise en cache pendant 60 sec. puis le serveur est resollicité (Chrome, FF, IE).</p>
+                        <p>Oui globalement, la ressource est mise en cache pendant 60 sec. puis le serveur est resollicité (Chrome, FF, IE) pour une remise en cache.</p>
                         <img src="img/chrome_maxage_60sec.png" />
+                    </section>
+                    
+                    <section>
+                        <h2>Cache par expiration</h2>
+                        <h3>Cache-control > Expires</h3>
+                       
+                        <pre><code>// En HTTP 1.1, cache-control prime sur expires
+@GET
+@Path("mix10sec")
+public Response mix10sec(){
+    Date expires = Date.from(Instant.now().plus(60, ChronoUnit.SECONDS));
+    CacheControl cache = new CacheControl();
+    cache.setMaxAge(10); // 
+
+    return Response.ok("En cache pendant 10sec").cacheControl(cache).expires(expires).build();
+}
+</code></pre>
+                        <img src="img/Chrome_cache_expires_mix.png" />
                     </section>
                 </section>
 
@@ -424,7 +441,7 @@ public Response vcontenu(@Context HttpServletRequest httpRequest) {
                         <h3>Basé sur le contenu</h3>
                         <h4>La désillution</h4>
 
-                        <p>On met en production... Et quelques temps plus tard, on se rend compte que le cache plante à plein tube sur IE</p>
+                        <p>On met en production... Et quelques temps plus tard, on se rend compte que le cache plante à pleins tubes sur IE</p>
                         <img src="img/oh_mon_dieu_tout_est_casse.gif" />
                     </section>
                     <section>
@@ -488,7 +505,7 @@ INFO (CacheControlService.java:129) - Retour 304</code></pre>
                             </li>
                         </ul>
                         <p>
-                            Si une réponse est mis en cache pendant 10 secondes, puis doit-revalider coups de pied après 10 secondes, alors que no-cache implique doit-revalider après 0 secondes.
+                            Si une réponse est mis en cache pendant 10 secondes, alors must-revalidate impose une revalidation après 10 secondes, alors que no-cache après 0 secondes.
                         </p>
                     </section>
                 </section>
@@ -499,12 +516,12 @@ INFO (CacheControlService.java:129) - Retour 304</code></pre>
                     <h2>Références</h2>
 
                     <ul>
-                        <li>https://www.fir3net.com/Networking/Protocols/http-caching-http-1-0-vs-http-1-1.html</li>
-                        <li>https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching?hl=fr#cache-control</li>
-                        <li>https://www.mnot.net/cache_docs/index.fr.html#CACHE-CONTROL</li>
-                        <li>https://devcenter.heroku.com/articles/increasing-application-performance-with-http-cache-headers</li>
-                        <li>https://developer.mozilla.org/fr/docs/Web/HTTP/Caching_FAQ</li>
-                        <li>http://stackoverflow.com/questions/18148884/difference-between-no-cache-and-must-revalidate</li>
+                        <li><a href="https://www.fir3net.com/Networking/Protocols/http-caching-http-1-0-vs-http-1-1.html" target="_blank">http-caching-http-1-0-vs-http-1-1</a></li>
+                        <li><a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching?hl=fr#cache-control" target="_blank">http-caching</a></li>
+                        <li><a href="https://www.mnot.net/cache_docs/index.fr.html#CACHE-CONTROL" target="_blank">CACHE-CONTROL</a></li>
+                        <li><a href="https://devcenter.heroku.com/articles/increasing-application-performance-with-http-cache-headers" target="_blank">increasing-application-performance-with-http-cache-headers</a></li>
+                        <li><a href="https://developer.mozilla.org/fr/docs/Web/HTTP/Caching_FAQ" target="_blank">Caching_FAQ</a></li>
+                        <li><a href="http://stackoverflow.com/questions/18148884/difference-between-no-cache-and-must-revalidate" target="_blank">difference-between-no-cache-and-must-revalidate</a></li>
                     </ul>
                 </section>
             </div>
