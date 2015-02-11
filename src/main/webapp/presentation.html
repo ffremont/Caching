@@ -76,6 +76,7 @@
                         <h2>La vie sans cache</h2>
 
                         <ul>
+                            <li>Ma réponse HTTP</li>
                             <li>IE 10 : en cache</li>
                             <li>Chrome & Firefox : sans cache</li>
                             <li>Conclusion</li>
@@ -83,7 +84,16 @@
                     </section>
                     <section>
                         <h2>La vie sans cache</h2>
-                        <h3>IE 10 : en cache</h3>
+                        <h3>Ma réponse HTTP</h3>
+
+                        <p>
+                            Ne pas gérer d'entêtes liées aux caches.
+                        </p>
+                        <img src="img/ie_cache_rien_response_ok.png"/>
+                    </section>
+                    <section>
+                        <h2>La vie sans cache</h2>
+                        <h3>Sous IE 10 -> en cache !</h3>
 
                         <p>
                             La réponse HTTP est automatiquement <strong>mise en cache </strong> malgré l'absence d'entête de cache
@@ -107,7 +117,7 @@
                         <h3>Conclusion</h3>
 
                         <p>
-                            <strong>Il faut définir explicitement le cache</strong>
+                            <strong>Il faut définir explicitement le cache</strong> car par défaut on a un comportement différent en fonction des navigateurs.
                         </p>
                     </section>
                 </section>
@@ -121,6 +131,7 @@
                             <li>Old school : HTTP 1.0</li>
                             <li>HTTP 1.1</li>
                             <li>En pratique</li>
+                            <li>En résumé</li>
                         </ul>
                     </section>
 
@@ -208,6 +219,37 @@ public Response disablecache(){
 }
     </code></pre>
                     </section>
+                    <section>
+                        <h2>Please, pas de cache !</h2>
+                        <h3>En résumé</h3>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Entête du Cache-control</th>
+                                    <th>A utiliser</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>no-cache</td>
+                                    <td>X</td>
+                                </tr>
+                                <tr>
+                                    <td>no-store</td>
+                                    <td>X</td>
+                                </tr>
+                                <tr>
+                                    <td>must-revalidate</td>
+                                    <td>_</td>
+                                </tr>
+                                <tr>
+                                    <td>max-age</td>
+                                    <td>_</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
                 </section>
 
                 <section>
@@ -275,10 +317,16 @@ public Response use1sec() {
                         <h2>Cache par expiration</h2>
                         <h3>Comportement homogène ?</h3>
 
-                        <p>Oui globalement, la ressource est mise en cache pendant 60 sec. puis le serveur est resollicité (Chrome, FF, IE) pour une remise en cache.</p>
+                        <p><strong>Oui</strong>, la ressource est mise en cache pendant 60 sec. puis le serveur est resollicité (Chrome, FF, IE) pour une remise en cache (après X sec).</p>
                         <img src="img/chrome_maxage_60sec.png" />
                     </section>
                     
+                    <section>
+                        <h2>Cache par expiration</h2>
+                        <h3>Cache-control / Expires</h3>
+                       
+                        <p>Qu'est ce qui se passe si on a du "Cache-control" et du "Expires" ?</p>
+                    </section>
                     <section>
                         <h2>Cache par expiration</h2>
                         <h3>Cache-control > Expires</h3>
@@ -289,7 +337,7 @@ public Response use1sec() {
 public Response mix10sec(){
     Date expires = Date.from(Instant.now().plus(60, ChronoUnit.SECONDS));
     CacheControl cache = new CacheControl();
-    cache.setMaxAge(10); // 
+    cache.setMaxAge(10);
 
     return Response.ok("En cache pendant 10sec").cacheControl(cache).expires(expires).build();
 }
