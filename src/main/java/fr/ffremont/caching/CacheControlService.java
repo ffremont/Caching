@@ -84,7 +84,7 @@ public class CacheControlService {
     public Response validationTps(@Context HttpServletRequest httpRequest) {
         javax.ws.rs.core.CacheControl cache = new javax.ws.rs.core.CacheControl();
         cache.setMaxAge(10); 
-        cache.setMustRevalidate(true);
+        //cache.setMustRevalidate(true);
         cache.setPrivate(false);
         Instant updated = Instant.parse("2011-12-03T10:15:30Z");
                 

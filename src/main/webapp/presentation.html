@@ -76,7 +76,7 @@
                         <h2>La vie sans cache</h2>
 
                         <ul>
-                            <li>Ma réponse HTTP</li>
+                            <li>Objectif</li>
                             <li>IE 10 : en cache</li>
                             <li>Chrome & Firefox : sans cache</li>
                             <li>Conclusion</li>
@@ -84,7 +84,7 @@
                     </section>
                     <section>
                         <h2>La vie sans cache</h2>
-                        <h3>Ma réponse HTTP</h3>
+                        <h3>Objectif</h3>
 
                         <p>
                             Ne pas gérer d'entêtes liées aux caches.
@@ -377,6 +377,7 @@ public Response mix10sec(){
                         </ul>
                     </section>
 
+                    
                     <section>
                         <h2>Cache par validation</h2>
                         <h3>Basé sur le temps</h3>
@@ -387,7 +388,7 @@ public Response mix10sec(){
 public Response validationTps(@Context HttpServletRequest httpRequest) {
     javax.ws.rs.core.CacheControl cache = new javax.ws.rs.core.CacheControl();
     cache.setMaxAge(10); 
-    cache.setMustRevalidate(true);
+    cache.setMustRevalidate(true); // une explication d'impose... ça vient dans le slide d'après.
     cache.setPrivate(false);
     Instant updated = Instant.parse("2011-12-03T10:15:30Z");
 
@@ -406,7 +407,7 @@ public Response validationTps(@Context HttpServletRequest httpRequest) {
                         <h3>Basé sur le temps</h3>
                         <h4>Must-revalidate</h4>
 
-                        <p>When the <strong>must-revalidate</strong> directive is present in a response received by a cache, that cache MUST NOT use the entry after it becomes stale to respond to a subsequent request without first revalidating it with the origin server</p>
+                        <p><strong>must-revalidate</strong> indique aux caches de devoir obéir à toute information de fraîcheur que vous leur donnez à propos d'une représentation. <small>HTTP permet aux caches de servir des représentations périmées sous certaines conditions ; en indiquant cette en-tête, vous dites au cache que vous voulez un respect strict de vos règles.</small></p>
 
                         <img src="img/FF_headers_cache_validation_temps_reponse.png" />
                     </section>
@@ -456,6 +457,43 @@ public Response validationTps(@Context HttpServletRequest httpRequest) {
 
                     <section>
                         <h2>Cache par validation</h2>
+                        <h3>Basé sur le temps</h3>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Entête</th>
+                                    <th>A utiliser</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Cache-control : max-age</td>
+                                    <td>X</td>
+                                </tr>
+                                <tr>
+                                    <td>Last-Modified</td>
+                                    <td>X</td>
+                                </tr>
+                                <tr>
+                                    <td>Cache-control : must-revalidate</td>
+                                    <td>X</td>
+                                </tr>
+                                <tr>
+                                    <td>Cache-control : no-cache</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Cache-control : no-store</td>
+                                    <td></td>
+                                </tr>
+                                
+                            </tbody>
+                        </table>
+                    </section>
+                    
+                    <section>
+                        <h2>Cache par validation</h2>
                         <h3>Basé sur le contenu</h3>
 
                         <p>Utilisation de l'entête "<strong>ETag</strong>" est similaire à "Last-Modified" excepté que la valeur est un hash du contenu.</p>
@@ -483,14 +521,21 @@ public Response vcontenu(@Context HttpServletRequest httpRequest) {
 </code></pre>
                         <img src="img/FF_headers_response_etag_basic.png" />
                     </section>
+                    
+                    <section>
+                        <h2>Cache par validation</h2>
+                        <h3>Basé sur le contenu</h3>
+
+                        <p>On met en production... </p>
+                    </section>
 
                     <section>
                         <h2>Cache par validation</h2>
                         <h3>Basé sur le contenu</h3>
                         <h4>La désillution</h4>
 
-                        <p>On met en production... Et quelques temps plus tard, on se rend compte que le cache plante à pleins tubes sur IE</p>
-                        <img src="img/oh_mon_dieu_tout_est_casse.gif" />
+                        <p>Et quelques temps plus tard, on se rend compte que le cache plante sur IE...</p>
+                        <img src="img/code-21.gif" />
                     </section>
                     <section>
                         <h2>Cache par validation</h2>
@@ -571,6 +616,9 @@ INFO (CacheControlService.java:129) - Retour 304</code></pre>
                         <li><a href="https://developer.mozilla.org/fr/docs/Web/HTTP/Caching_FAQ" target="_blank">Caching_FAQ</a></li>
                         <li><a href="http://stackoverflow.com/questions/18148884/difference-between-no-cache-and-must-revalidate" target="_blank">difference-between-no-cache-and-must-revalidate</a></li>
                     </ul>
+                </section>
+                <section>
+                    <h1>Fin</h1>
                 </section>
             </div>
 
