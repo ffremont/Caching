@@ -190,6 +190,7 @@
                                 </ul>
                             </li>
                         </ul>
+                        <p>La directive "no-store" n'est pas suffisante sur IE pour désactiver le cache.</p>
                     </section>
                     <section>
                         <h2>Please, pas de cache !</h2>
@@ -546,7 +547,7 @@ public Response vcontenu(@Context HttpServletRequest httpRequest) {
                         <pre><code>INFO (CacheControlService.java:125) - Retour du contenu
 INFO (CacheControlService.java:129) - Retour 304</code></pre>
                     </section>
-
+                    
                     <section>
                         <h2>Cache par validation</h2>
                         <h3>Basé sur le contenu</h3>
@@ -601,6 +602,43 @@ INFO (CacheControlService.java:129) - Retour 304</code></pre>
                             Si une réponse est mis en cache pendant 10 secondes, alors must-revalidate impose une revalidation après 10 secondes, alors que no-cache après 0 secondes.
                         </p>
                     </section>
+                    
+                    <section>
+                        <h2>Cache par validation</h2>
+                        <h3>Basé sur le contenu</h3>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Entête</th>
+                                    <th>A utiliser</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ETag</td>
+                                    <td>X</td>
+                                </tr>
+                                <tr>
+                                    <td>Cache-control : no-cache</td>
+                                    <td>X</td>
+                                </tr>
+                                <tr>
+                                    <td>Cache-control : max-age</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Cache-control : must-revalidate</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Cache-control : no-store</td>
+                                    <td></td>
+                                </tr>
+                                
+                            </tbody>
+                        </table>
+                    </section>
                 </section>
 
 
@@ -615,6 +653,7 @@ INFO (CacheControlService.java:129) - Retour 304</code></pre>
                         <li><a href="https://devcenter.heroku.com/articles/increasing-application-performance-with-http-cache-headers" target="_blank">increasing-application-performance-with-http-cache-headers</a></li>
                         <li><a href="https://developer.mozilla.org/fr/docs/Web/HTTP/Caching_FAQ" target="_blank">Caching_FAQ</a></li>
                         <li><a href="http://stackoverflow.com/questions/18148884/difference-between-no-cache-and-must-revalidate" target="_blank">difference-between-no-cache-and-must-revalidate</a></li>
+                        <li><a href="http://matthewturland.com/slides/jersey/" target="_blank">Jersey presentation</a></li>
                     </ul>
                 </section>
                 <section>
