@@ -84,32 +84,34 @@ public class CacheControlService {
     public Response validationTps(@Context HttpServletRequest httpRequest) {
         javax.ws.rs.core.CacheControl cache = new javax.ws.rs.core.CacheControl();
         cache.setMaxAge(10); 
-        //cache.setMustRevalidate(true);
+        cache.setMustRevalidate(true);
         cache.setPrivate(false);
         Instant updated = Instant.parse("2011-12-03T10:15:30Z");
                 
         LOG.info("Cache par validation de temps");
         Response.ResponseBuilder builder = request.evaluatePreconditions(Date.from(updated));
         if(builder == null){
-            builder = Response.ok("Ma petite donnée").lastModified(Date.from(updated)).cacheControl(cache);
+            builder = Response.ok("Ma petite donnée");
         }
+        builder.lastModified(Date.from(updated)).cacheControl(cache);
         
         return builder.build();
     }
     
     @GET
-    @Path("vcontenu30sec")
+    @Path("vcontenu10sec")
     public Response vcontenu30sec() {
         String hashOfMyContent = "azerty_v1";
         EntityTag etag = new EntityTag(hashOfMyContent);
         CacheControl cache = new CacheControl();
-        cache.setMaxAge(30);
+        cache.setMaxAge(10);
         
         Response.ResponseBuilder builder = request.evaluatePreconditions(etag);
         if(builder == null){
             LOG.info("Retour du contenu");
-            builder = Response.ok("Cache par validation de contenu").cacheControl(cache).tag(etag);
+            builder = Response.ok("Cache par validation de contenu");
         }
+        builder.cacheControl(cache).tag(etag);
         
         LOG.info("Retour 304");
         return builder.build();
@@ -124,8 +126,9 @@ public class CacheControlService {
         Response.ResponseBuilder builder = request.evaluatePreconditions(etag);
         if(builder == null){
             LOG.info("Retour du contenu");
-            builder = Response.ok("Cache par validation de contenu").tag(etag);
+            builder = Response.ok("Cache par validation de contenu");
         }
+        builder.tag(etag);
         
         LOG.info("Retour 304");
         return builder.build();

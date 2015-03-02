@@ -56,6 +56,7 @@
                         <li>Le cache mais quand ?</li>
                         <li>Cache par expiration</li>
                         <li>Cache par validation</li>
+                        <li>Cache mixte</li>
                         <li>Références</li>
                         <!-- https://www.fir3net.com/Networking/Protocols/http-caching-http-1-0-vs-http-1-1.html -->
                         <!-- https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching?hl=fr#cache-control -->
@@ -227,25 +228,33 @@ public Response disablecache(){
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Entête du Cache-control</th>
+                                    <th>Entêtes</th>
                                     <th>A utiliser</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>no-cache</td>
+                                    <td>Pragma: no-cache</td>
                                     <td>X</td>
                                 </tr>
                                 <tr>
-                                    <td>no-store</td>
+                                    <td><a href="http://www.w3.org/Protocols/HTTP/1.0/spec.html">Expires: 0</a></td>
                                     <td>X</td>
                                 </tr>
                                 <tr>
-                                    <td>must-revalidate</td>
+                                    <td>Cache-control: no-cache</td>
+                                    <td>X</td>
+                                </tr>
+                                <tr>
+                                    <td>Cache-control: no-store</td>
+                                    <td>X</td>
+                                </tr>
+                                <tr>
+                                    <td>Cache-control: must-revalidate</td>
                                     <td>_</td>
                                 </tr>
                                 <tr>
-                                    <td>max-age</td>
+                                    <td>Cache-control: max-age</td>
                                     <td>_</td>
                                 </tr>
                             </tbody>
@@ -339,6 +348,7 @@ public Response mix10sec(){
     Date expires = Date.from(Instant.now().plus(60, ChronoUnit.SECONDS));
     CacheControl cache = new CacheControl();
     cache.setMaxAge(10);
+    // l'inverse est vrai aussi
 
     return Response.ok("En cache pendant 10sec").cacheControl(cache).expires(expires).build();
 }
@@ -389,14 +399,15 @@ public Response mix10sec(){
 public Response validationTps(@Context HttpServletRequest httpRequest) {
     javax.ws.rs.core.CacheControl cache = new javax.ws.rs.core.CacheControl();
     cache.setMaxAge(10); 
-    cache.setMustRevalidate(true); // une explication s'impose... ça vient dans le slide d'après.
-    cache.setPrivate(false);
-    Instant updated = Instant.parse("2011-12-03T10:15:30Z");
-
-    Response.ResponseBuilder builder = request.evaluatePreconditions(Date.from(updated));
-    if(builder == null){
-        builder = Response.ok("Ma petite donnée").lastModified(Date.from(updated)).cacheControl(cache);
-    }
+        cache.setMustRevalidate(true);
+        cache.setPrivate(false);
+        Instant updated = Instant.parse("2011-12-03T10:15:30Z");
+                
+        Response.ResponseBuilder builder = request.evaluatePreconditions(Date.from(updated));
+        if(builder == null){
+            builder = Response.ok("Ma petite donnée");
+        }
+        builder.lastModified(Date.from(updated)).cacheControl(cache);
 
     return builder.build();
 }
@@ -418,18 +429,12 @@ public Response validationTps(@Context HttpServletRequest httpRequest) {
                         <h3>Basé sur le temps</h3>
                         <h4>Comportement homogène ?</h4>
 
-                        <p><strong>Non... </strong></p>
+                        <p><strong>Oui...</strong></p>
                         <ul>
-                            <li>Chrome & FF :
+                            <li>Chrome & FF & IE :
                                 <ul>
                                     <li>Mise en cache pendant 10sec puis revalidation</li>
                                     <li>Serveur tranquille pendant 10sec</li>
-                                </ul>
-                            </li>
-                            <li>IE :
-                                <ul>
-                                    <li>Mise en cache pendant 10sec puis revalidation</li>
-                                    <li>Serveur tranquille pendant les 10 premières sec après revalidation systématique à chaque appel</li>
                                 </ul>
                             </li>
                         </ul>
@@ -450,7 +455,7 @@ public Response validationTps(@Context HttpServletRequest httpRequest) {
                                 Inconvénients
                                 <ul>
                                     <li>Si ma ressource est périmée pendant les X sec : je suis fichu</li>
-                                    <li>Gestion du cache par validation (basé sur le temps) hétérogène</li>
+                                    <li>Gestion du cache par validation (basé sur le temps) homogène</li>
                                 </ul>
                             </li>
                         </ul>                        
@@ -497,7 +502,7 @@ public Response validationTps(@Context HttpServletRequest httpRequest) {
                         <h2>Cache par validation</h2>
                         <h3>Basé sur le contenu</h3>
 
-                        <p>Utilisation de l'entête "<strong>ETag</strong>" est similaire à "Last-Modified" excepté que la valeur est un hash du contenu.</p>
+                        <p>Utilisation de l'entête "<strong>ETag</strong>" est similaire à "Last-Modified" excepté que la valeur est un "hash du contenu".</p>
                         <p>Très utile lorsque la dernière date de modification est difficile à prévoir.</p>
                         <img src="img/http-cache-control.png" />
                     </section>
@@ -535,7 +540,7 @@ public Response vcontenu(@Context HttpServletRequest httpRequest) {
                         <h3>Basé sur le contenu</h3>
                         <h4>La désillution</h4>
 
-                        <p>Et quelques temps plus tard, on se rend compte que le cache plante sur IE...</p>
+                        <p>Et quelques temps plus tard, on se rend compte que le cache "plante" sur IE...</p>
                         <img src="img/code-21.gif" />
                     </section>
                     <section>
@@ -641,7 +646,29 @@ INFO (CacheControlService.java:129) - Retour 304</code></pre>
                     </section>
                 </section>
 
+                 <section>
+                        <h2>Cache mixte</h2>
+                        <h3>ETag & max-age</h3>
+                        
+                        <p><small>Cache par validation (ETag), avec mise en cache pendant 10sec strictement. <br/><strong>Chrome, FF, IE : OK</strong></small></p>
+                        <pre><code>@GET
+@Path("vcontenu10sec")
+public Response vcontenu10sec() {
+    String hashOfMyContent = "azerty_v1";
+    EntityTag etag = new EntityTag(hashOfMyContent);
+    CacheControl cache = new CacheControl();
+    cache.setMaxAge(10);
+    cache.setMustRevalidate(true);
 
+    Response.ResponseBuilder builder = request.evaluatePreconditions(etag);
+    if(builder == null){
+        builder = Response.ok("Cache par validation de contenu");
+    }
+    builder.cacheControl(cache).tag(etag);
+
+    return builder.build();
+}</code></pre>
+                 </section>
 
                 <section>
                     <h2>Références</h2>

@@ -38,9 +38,9 @@ public class ExpireCache {
     @GET
     @Path("mix10sec")
     public Response mix10sec(){
-        Date expires = Date.from(Instant.now().plus(60, ChronoUnit.SECONDS));
+        Date expires = Date.from(Instant.now().plus(10, ChronoUnit.SECONDS));
         CacheControl cache = new CacheControl();
-        cache.setMaxAge(10);
+        cache.setMaxAge(60);
         
         LOG.info("Retour du contenu");
         return Response.ok("En cache pendant 10sec").cacheControl(cache).expires(expires).build();
