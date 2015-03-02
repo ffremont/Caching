@@ -76,7 +76,7 @@
                         <h2>La vie sans cache</h2>
 
                         <ul>
-                            <li>Objectif</li>
+                            <li>C'est quoi ?</li>
                             <li>IE 10 : en cache</li>
                             <li>Chrome & Firefox : sans cache</li>
                             <li>Conclusion</li>
@@ -84,7 +84,7 @@
                     </section>
                     <section>
                         <h2>La vie sans cache</h2>
-                        <h3>Objectif</h3>
+                        <h3>C'est quoi ?</h3>
 
                         <p>
                             Ne pas gérer d'entêtes liées aux caches.
@@ -326,7 +326,7 @@ public Response use1sec() {
                         <h2>Cache par expiration</h2>
                         <h3>Cache-control / Expires</h3>
                        
-                        <p>Qu'est ce qui se passe si on a du "Cache-control" et du "Expires" ?</p>
+                        <p>Que se passe-t-il si on a du "Cache-control" et du "Expires" ?</p>
                     </section>
                     <section>
                         <h2>Cache par expiration</h2>
@@ -389,7 +389,7 @@ public Response mix10sec(){
 public Response validationTps(@Context HttpServletRequest httpRequest) {
     javax.ws.rs.core.CacheControl cache = new javax.ws.rs.core.CacheControl();
     cache.setMaxAge(10); 
-    cache.setMustRevalidate(true); // une explication d'impose... ça vient dans le slide d'après.
+    cache.setMustRevalidate(true); // une explication s'impose... ça vient dans le slide d'après.
     cache.setPrivate(false);
     Instant updated = Instant.parse("2011-12-03T10:15:30Z");
 
@@ -443,7 +443,7 @@ public Response validationTps(@Context HttpServletRequest httpRequest) {
                         <ul>
                             <li>Avantages
                                 <ul>
-                                    <li>pendant X sec le <strong>serveur n'est pas sollicité</strong></li>
+                                    <li>Pendant X sec le <strong>serveur n'est pas sollicité</strong></li>
                                 </ul>
                             </li>
                             <li>
