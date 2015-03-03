@@ -7,8 +7,6 @@ package fr.ffremont.caching;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.Temporal;
-import java.time.temporal.TemporalUnit;
 import java.util.Date;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

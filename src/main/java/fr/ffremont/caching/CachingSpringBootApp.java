@@ -1,4 +1,4 @@
-package fr.ffremont.microservices.sbmanager;
+package fr.ffremont.caching;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
