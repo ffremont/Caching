@@ -7,4 +7,17 @@ Support de présentation sur la gestion du cache dans les applications Web 2.0^^
 - Le cache mais quand ?
 - Cache par expiration
 - Cache par validation
- 
+
+## Installation
+``` bash
+mvn clean install
+```
+
+## Démarrer le micro service
+- unzip le fichier dans /target
+``` bash
+java -jar caching-X.X-SNAPSHOT.jar -Dserver.port=8080
+```
+
+## Consulter la présentation
+- http://localhost:8080/presentation.html

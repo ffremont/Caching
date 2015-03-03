@@ -514,8 +514,9 @@ public Response vcontenu(@Context HttpServletRequest httpRequest) {
 
     Response.ResponseBuilder builder = request.evaluatePreconditions(etag);
     if(builder == null){
-        builder = Response.ok("Cache par validation de contenu").tag(etag);
+        builder = Response.ok("Cache par validation de contenu");
     }
+    builder.tag(etag);
 
     return builder.build();
 }
