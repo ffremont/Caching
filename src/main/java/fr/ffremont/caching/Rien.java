@@ -10,7 +10,6 @@ import fr.ffremont.caching.annotations.NoCache;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
-import org.jsondoc.core.annotation.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Component;
  *
  * @author florent
  */
-@Api(name = "Rien", description="une petite desc.")
 @Component
 @Path("rien")
 public class Rien {

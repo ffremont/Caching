@@ -6,13 +6,16 @@
 package fr.ffremont.caching;
 
 import org.glassfish.jersey.server.ResourceConfig;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author florent
  */
-public class MyApplication extends ResourceConfig{
-    public MyApplication(){
-        packages("fr.ffremont.caching");
+@Component
+public class JerseyConfig extends ResourceConfig {
+
+    public JerseyConfig() {
+         packages("fr.ffremont.caching");
     }
 }
