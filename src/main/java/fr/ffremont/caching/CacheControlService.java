@@ -145,10 +145,12 @@ public class CacheControlService {
         Response.ResponseBuilder builder = request.evaluatePreconditions(etag);
         if(builder == null){
             LOG.info("Retour du contenu");
-            builder = Response.ok("Cache par validation de contenu").cacheControl(cache).tag(etag);
-        }
+            builder = Response.ok("Cache par validation de contenu");
+        }else{
+            LOG.info("Retour 304");
+        }        
+        builder.cacheControl(cache).tag(etag);
         
-        LOG.info("Retour 304");
         return builder.build();
     }
 }

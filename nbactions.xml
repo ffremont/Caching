@@ -6,12 +6,10 @@
                 <packaging>jar</packaging>
             </packagings>
             <goals>
-                <goal>process-classes</goal>
-                <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
+                <goal>spring-boot:run</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath fr.ffremont.caching.CachingSpringBootApp</exec.args>
-                <exec.executable>java</exec.executable>
+                <folders>src/main/resources/static</folders>
             </properties>
         </action>
         <action>
@@ -41,6 +39,16 @@
             <properties>
                 <exec.args>-classpath %classpath fr.ffremont.caching.CachingSpringBootApp</exec.args>
                 <exec.executable>java</exec.executable>
+            </properties>
+        </action>
+        <action>
+            <actionName>CUSTOM-Run - SpringBoot</actionName>
+            <displayName>Run - SpringBoot</displayName>
+            <goals>
+                <goal>spring-boot:run</goal>
+            </goals>
+            <properties>
+                <folders>src/main/resources/static</folders>
             </properties>
         </action>
     </actions>

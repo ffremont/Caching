@@ -564,8 +564,9 @@ public Response vcontenuIe(@Context HttpServletRequest httpRequest) {
 
     Response.ResponseBuilder builder = request.evaluatePreconditions(etag);
     if(builder == null){
-        builder = Response.ok("Cache par validation de contenu").cacheControl(cache).tag(etag);
+        builder = Response.ok("Cache par validation de contenu");
     }
+    builder.cacheControl(cache).tag(etag);
 
     return builder.build();
 }
