@@ -74,7 +74,7 @@ public class CacheControlService {
     /**
      * Utilisation du If-Modified-Since
      *  Ma ressource est mise en cache pendant 10sec puis une revalidation à lieu pour renouveler les 10sec.
-     *  Sauf sur IE, passé 10sec, la revalidation ne renouvele pas les 10sec
+     *  
      * 
      * @param httpRequest
      * @return 

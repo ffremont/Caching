@@ -400,9 +400,9 @@ public Response validationTps(@Context HttpServletRequest httpRequest) {
                 
         Response.ResponseBuilder builder = request.evaluatePreconditions(Date.from(updated));
         if(builder == null){
-            builder = Response.ok("Ma petite donnée");
+            builder = Response.ok("Ma petite donnée").lastModified(Date.from(updated));
         }
-        builder.lastModified(Date.from(updated)).cacheControl(cache);
+        builder.cacheControl(cache);
 
     return builder.build();
 }

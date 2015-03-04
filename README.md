@@ -21,3 +21,7 @@ java -jar caching-X.X-SNAPSHOT.jar -Dserver.port=8080
 
 ## Consulter la présentation
 - http://localhost:8080/presentation.html
+
+## Refaire les tests
+Sur la page principal http://localhost:8080/index.html, saisir dans la console
+- $.get("rest/...") cf code source
